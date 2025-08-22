@@ -44,9 +44,10 @@ func NewGRootRunner(cfg *GRootRunnerConfig) (*GRootRunner, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := sess.ExecuteActions(nil, nil); err != nil {
-		return nil, err
+	for frame, err := range sess.ExecuteActions(nil, nil) {
+		log.Println(frame, err)
 	}
+
 	return &GRootRunner{
 		cfg:    cfg,
 		client: client,
