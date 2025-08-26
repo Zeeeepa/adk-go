@@ -274,17 +274,19 @@ func (e *EventLog) LogEvent(userID string, id string, event *session.Event) erro
 		return fmt.Errorf("no shadow found for output ID: %s", id)
 	}
 
-	fmt.Fprintf(e.logFile, "%s|%s|%s|stream|%s\n", e.appName, userID, e.session.ID(), id)
-	e.logFile.Sync()
-
 	out, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}
-	return shadow.WriteFrame(id, &internal.Chunk{
+	if err := shadow.WriteFrame(id, &internal.Chunk{
 		MIMEType: "application/json",
 		Data:     out,
-	}, event.Partial)
+	}, event.Partial); err != nil {
+		return err
+	}
+	fmt.Fprintf(e.logFile, "%s|%s|%s|stream|%s\n", e.appName, userID, e.session.ID(), id)
+	e.logFile.Sync()
+	return nil
 }
 
 func (e *EventLog) LogActivity(userID string, kind string, name, input, output string) error {
