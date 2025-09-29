@@ -1,6 +1,6 @@
 module google.golang.org/adk
 
-go 1.24.3
+go 1.24.4
 
 require (
 	github.com/google/go-cmp v0.7.0
@@ -18,16 +18,18 @@ require (
 )
 
 require (
+	github.com/a2aproject/a2a-go v0.0.0-20250922145337-2fa71f4d7988
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/cors v1.11.1
 	github.com/spf13/cobra v1.8.1
+	google.golang.org/grpc v1.75.1
 )
 
 require (
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.9.3 // indirect
-	cloud.google.com/go/compute/metadata v0.5.0 // indirect
+	cloud.google.com/go/compute/metadata v0.7.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
@@ -40,7 +42,7 @@ require (
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
-	google.golang.org/grpc v1.66.2 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250715232539-7130f93afb79 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250715232539-7130f93afb79 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )
