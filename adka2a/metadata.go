@@ -65,7 +65,7 @@ func toEventMeta(meta invocationMeta, event *session.Event) (map[string]any, err
 		return result, nil
 	}
 
-	if response.ErrorCode != 0 {
+	if response.ErrorCode != "" {
 		result[toMetaKey("error_code")] = response.ErrorCode
 	}
 

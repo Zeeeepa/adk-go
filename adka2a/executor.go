@@ -21,9 +21,9 @@ import (
 	"github.com/a2aproject/a2a-go/a2a"
 	"github.com/a2aproject/a2a-go/a2asrv"
 	"github.com/a2aproject/a2a-go/a2asrv/eventqueue"
+	"google.golang.org/adk/agent"
 	"google.golang.org/adk/runner"
 	"google.golang.org/adk/session"
-	"google.golang.org/adk/sessionservice"
 	"google.golang.org/genai"
 )
 
@@ -42,7 +42,7 @@ func (f agentExecutorOptionFn) apply(ae *Executor) {
 }
 
 // WithRunConfig allows to set a configuration that will be passed to runner.Runner.Run during A2A Execute invocation.
-func WithRunConfig(config *runner.RunConfig) ExecutorOption {
+func WithRunConfig(config *agent.RunConfig) ExecutorOption {
 	return agentExecutorOptionFn(func(ae *Executor) {
 		ae.runConfig = config
 	})
@@ -61,14 +61,14 @@ var _ a2asrv.AgentExecutor = (*Executor)(nil)
 //     Else produce a TaskStatusUpdateEvent with TaskStateCompleted.
 type Executor struct {
 	config    *ExecutorConfig
-	runConfig *runner.RunConfig
+	runConfig *agent.RunConfig
 }
 
 // NewExecutor creates an initialized Executor instance.
 func NewExecutor(config *ExecutorConfig, opts ...ExecutorOption) *Executor {
 	ae := &Executor{
 		config:    config,
-		runConfig: &runner.RunConfig{},
+		runConfig: &agent.RunConfig{},
 	}
 	for _, opt := range opts {
 		opt.apply(ae)
@@ -86,7 +86,7 @@ func (e *Executor) Execute(ctx context.Context, reqCtx a2asrv.RequestContext, qu
 		return fmt.Errorf("a2a message conversion failed: %w", err)
 	}
 	cong := runner.Config(*e.config)
-	r, err := runner.New(&cong)
+	r, err := runner.New(cong)
 	if err != nil {
 		return fmt.Errorf("failed to create a runner: %w", err)
 	}
@@ -174,18 +174,16 @@ func (e *Executor) process(ctx context.Context, r *runner.Runner, processor *eve
 }
 
 func (e *Executor) prepareSession(ctx context.Context, meta invocationMeta) error {
-	resp, err := e.config.SessionService.Get(ctx, &sessionservice.GetRequest{
-		ID: session.ID{
-			AppName:   e.config.AppName,
-			UserID:    meta.userID,
-			SessionID: meta.sessionID,
-		},
+	resp, err := e.config.SessionService.Get(ctx, &session.GetRequest{
+		AppName:   e.config.AppName,
+		UserID:    meta.userID,
+		SessionID: meta.sessionID,
 	})
 	if err == nil && resp != nil {
 		return nil
 	}
 
-	_, err = e.config.SessionService.Create(ctx, &sessionservice.CreateRequest{
+	_, err = e.config.SessionService.Create(ctx, &session.CreateRequest{
 		AppName:   e.config.AppName,
 		UserID:    meta.userID,
 		SessionID: meta.sessionID,

@@ -22,7 +22,7 @@ import (
 
 	"github.com/a2aproject/a2a-go/a2a"
 	"github.com/a2aproject/a2a-go/a2asrv"
-	"google.golang.org/adk/llm"
+	"google.golang.org/adk/model"
 	"google.golang.org/adk/session"
 	"google.golang.org/genai"
 )
@@ -64,7 +64,7 @@ func (p *eventProcessor) process(ctx context.Context, event *session.Event) (*a2
 	}
 
 	resp := event.LLMResponse
-	if resp.ErrorCode != 0 {
+	if resp.ErrorCode != "" {
 		// TODO(yarolegovich): consider merging responses if multiple errors can be produced during an invocation
 		if _, ok := p.terminalEvents[a2a.TaskStateFailed]; !ok {
 			p.terminalEvents[a2a.TaskStateFailed] = toTaskFailedUpdateEvent(p.task, errorFromResponse(resp), eventMeta)
@@ -152,6 +152,6 @@ func isInputRequired(event *session.Event, parts []*genai.Part) bool {
 	return false
 }
 
-func errorFromResponse(resp *llm.Response) error {
+func errorFromResponse(resp *model.LLMResponse) error {
 	return fmt.Errorf("llm error response: %q", resp.ErrorMessage)
 }

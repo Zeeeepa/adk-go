@@ -26,9 +26,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/adk/agent"
-	"google.golang.org/adk/llm"
+	"google.golang.org/adk/model"
 	"google.golang.org/adk/session"
-	"google.golang.org/adk/sessionservice"
 	"google.golang.org/genai"
 )
 
@@ -47,11 +46,11 @@ func (q *testQueue) Write(_ context.Context, e a2a.Event) error {
 }
 
 type testSessionService struct {
-	sessionservice.Service
+	session.Service
 	createErr bool
 }
 
-func (s *testSessionService) Create(ctx context.Context, req *sessionservice.CreateRequest) (*sessionservice.CreateResponse, error) {
+func (s *testSessionService) Create(ctx context.Context, req *session.CreateRequest) (*session.CreateResponse, error) {
 	if s.createErr {
 		return nil, fmt.Errorf("session creation failed")
 	}
@@ -61,7 +60,7 @@ func (s *testSessionService) Create(ctx context.Context, req *sessionservice.Cre
 func newEventReplayAgent(events []*session.Event, failWith error) (agent.Agent, error) {
 	return agent.New(agent.Config{
 		Name: "test",
-		Run: func(agent.Context) iter.Seq2[*session.Event, error] {
+		Run: func(agent.InvocationContext) iter.Seq2[*session.Event, error] {
 			return func(yield func(*session.Event, error) bool) {
 				for _, event := range events {
 					if !yield(event, nil) {
@@ -157,7 +156,7 @@ func TestExecutor_Execute(t *testing.T) {
 			request: &a2a.MessageSendParams{Message: hiMsgForTask},
 			events: []*session.Event{
 				{LLMResponse: modelResponseFromParts(genai.NewPartFromText("Hello"))},
-				{LLMResponse: &llm.Response{ErrorCode: 418, ErrorMessage: "I'm a teapot"}},
+				{LLMResponse: &model.LLMResponse{ErrorCode: "418", ErrorMessage: "I'm a teapot"}},
 				{LLMResponse: modelResponseFromParts(genai.NewPartFromText(", world!"))},
 			},
 			wantEvents: []a2a.Event{
@@ -166,8 +165,8 @@ func TestExecutor_Execute(t *testing.T) {
 				a2a.NewArtifactUpdateEvent(task, a2a.NewArtifactID(), a2a.TextPart{Text: ", world!"}),
 				newArtifactLastChunkEvent(task),
 				toTaskFailedUpdateEvent(
-					task, errorFromResponse(&llm.Response{ErrorCode: 418, ErrorMessage: "I'm a teapot"}),
-					map[string]any{toMetaKey("error_code"): 418},
+					task, errorFromResponse(&model.LLMResponse{ErrorCode: "418", ErrorMessage: "I'm a teapot"}),
+					map[string]any{toMetaKey("error_code"): "418"},
 				),
 			},
 		},
@@ -217,7 +216,7 @@ func TestExecutor_Execute(t *testing.T) {
 			if err != nil {
 				t.Fatalf("newEventReplayAgent() error = %v, want nil", err)
 			}
-			sessionService := &testSessionService{Service: sessionservice.Mem(), createErr: tc.createSessionFails}
+			sessionService := &testSessionService{Service: session.InMemoryService(), createErr: tc.createSessionFails}
 			config := &ExecutorConfig{AppName: agent.Name(), Agent: agent, SessionService: sessionService}
 			executor := NewExecutor(config)
 			queue := &testQueue{Queue: eventqueue.NewInMemoryQueue(10), writeErr: tc.queueWriteFails}
@@ -274,7 +273,7 @@ func TestExecutor_SessionReuse(t *testing.T) {
 		t.Fatalf("newEventReplayAgent() error = %v, want nil", err)
 	}
 
-	sessionService := sessionservice.Mem()
+	sessionService := session.InMemoryService()
 	task := &a2a.Task{ID: a2a.NewTaskID(), ContextID: a2a.NewContextID()}
 	req := &a2a.MessageSendParams{Message: a2a.NewMessageForTask(a2a.MessageRoleUser, task)}
 	reqCtx := a2asrv.RequestContext{TaskID: task.ID, ContextID: task.ContextID, Request: req}
@@ -292,7 +291,7 @@ func TestExecutor_SessionReuse(t *testing.T) {
 	}
 
 	meta := toInvocationMeta(config, reqCtx)
-	sessions, err := sessionService.List(ctx, &sessionservice.ListRequest{AppName: config.AppName, UserID: meta.userID})
+	sessions, err := sessionService.List(ctx, &session.ListRequest{AppName: config.AppName, UserID: meta.userID})
 	if err != nil {
 		t.Fatalf("sessionService.List() error = %v, want nil", err)
 	}
