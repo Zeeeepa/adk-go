@@ -20,6 +20,11 @@ import (
 	"google.golang.org/adk/session"
 )
 
+// ToA2AMetaKey adds a prefix used to differentiage ADK-related values stored in Metadata an A2A event.
+func ToA2AMetaKey(key string) string {
+	return "adk_" + key
+}
+
 type invocationMeta struct {
 	userID    string
 	sessionID string
@@ -37,10 +42,6 @@ func toInvocationMeta(config ExecutorConfig, reqCtx *a2asrv.RequestContext) invo
 	}
 
 	return invocationMeta{userID: userID, sessionID: sessionID, eventMeta: m}
-}
-
-func ToA2AMetaKey(key string) string {
-	return "adk_" + key
 }
 
 func toEventMeta(meta invocationMeta, event *session.Event) (map[string]any, error) {

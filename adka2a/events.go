@@ -29,6 +29,7 @@ var (
 	customMetaContextIDKey = ToADKMetaKey("context_id")
 )
 
+// NewRemoteAgentEvent create a new Event authored by the agent running in the provided invocation context.
 func NewRemoteAgentEvent(ctx agent.InvocationContext) *session.Event {
 	event := session.NewEvent(ctx.InvocationID())
 	event.Author = ctx.Agent().Name()
@@ -37,10 +38,8 @@ func NewRemoteAgentEvent(ctx agent.InvocationContext) *session.Event {
 	return event
 }
 
-func EventToMessage(ctx agent.InvocationContext, event *session.Event) (*a2a.Message, error) {
-	if ctx == nil {
-		return nil, fmt.Errorf("InvocationContext not provided")
-	}
+// EventToMessage converts the provided session event to A2A message.
+func EventToMessage(event *session.Event) (*a2a.Message, error) {
 	if event == nil || event.Content == nil {
 		return nil, nil
 	}
@@ -48,9 +47,6 @@ func EventToMessage(ctx agent.InvocationContext, event *session.Event) (*a2a.Mes
 	parts, err := ToA2AParts(event.Content.Parts, event.LongRunningToolIDs)
 	if err != nil {
 		return nil, fmt.Errorf("part conversion failed: %w", err)
-	}
-	if len(parts) == 0 {
-		return nil, nil
 	}
 
 	var role a2a.MessageRole
@@ -63,6 +59,7 @@ func EventToMessage(ctx agent.InvocationContext, event *session.Event) (*a2a.Mes
 	return a2a.NewMessage(role, parts...), nil
 }
 
+// ToSessionEvent converts the provided a2a event to session event authored by the agent running in the provided invocation context.
 func ToSessionEvent(ctx agent.InvocationContext, event a2a.Event) (*session.Event, error) {
 	switch v := event.(type) {
 	case *a2a.Task:
@@ -108,10 +105,12 @@ func ToSessionEvent(ctx agent.InvocationContext, event a2a.Event) (*session.Even
 	}
 }
 
+// ToADKMetaKey adds a prefix used to differentiage A2A-related values stored in custom metadata of an ADK session event.
 func ToADKMetaKey(key string) string {
 	return "a2a:" + key
 }
 
+// ToCustomMetadata creates a session event custom metadata with A2A task and context IDs in it.
 func ToCustomMetadata(tid a2a.TaskID, ctxID string) map[string]any {
 	return map[string]any{
 		customMetaTaskIDKey:    string(tid),
@@ -119,6 +118,7 @@ func ToCustomMetadata(tid a2a.TaskID, ctxID string) map[string]any {
 	}
 }
 
+// GetA2ATaskInfo returns A2A task and context IDs if they are present in session event custom metadata.
 func GetA2ATaskInfo(event *session.Event) (taskID a2a.TaskID, contextID string) {
 	if event == nil || event.CustomMetadata == nil {
 		return

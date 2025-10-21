@@ -37,6 +37,8 @@ const (
 	a2aDataPartTypeCodeExecutableCode = "executable_code"
 )
 
+// ToA2AParts converts the provided genai parts to A2A equivalents. Long running tool IDs are used for attaching metadata to
+// the relevant data parts.
 func ToA2AParts(parts []*genai.Part, longRunningToolIDs []string) ([]a2a.Part, error) {
 	result := make([]a2a.Part, len(parts))
 	for i, part := range parts {
