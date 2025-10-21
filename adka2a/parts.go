@@ -21,12 +21,13 @@ import (
 	"slices"
 
 	"github.com/a2aproject/a2a-go/a2a"
+	"google.golang.org/adk/internal/utils"
 	"google.golang.org/genai"
 )
 
 var (
-	a2aDataPartMetaTypeKey        = toMetaKey("type")
-	a2aDataPartMetaLongRunningKey = toMetaKey("is_long_running")
+	a2aDataPartMetaTypeKey        = ToA2AMetaKey("type")
+	a2aDataPartMetaLongRunningKey = ToA2AMetaKey("is_long_running")
 )
 
 const (
@@ -36,13 +37,13 @@ const (
 	a2aDataPartTypeCodeExecutableCode = "executable_code"
 )
 
-func toA2AParts(parts []*genai.Part, longRunningToolIDs []string) ([]a2a.Part, error) {
+func ToA2AParts(parts []*genai.Part, longRunningToolIDs []string) ([]a2a.Part, error) {
 	result := make([]a2a.Part, len(parts))
 	for i, part := range parts {
 		if part.Text != "" {
 			r := a2a.TextPart{Text: part.Text}
 			if part.Thought {
-				r.Metadata = map[string]any{toMetaKey("thought"): true}
+				r.Metadata = map[string]any{ToA2AMetaKey("thought"): true}
 			}
 			result[i] = r
 		} else if part.InlineData != nil || part.FileData != nil {
@@ -90,7 +91,7 @@ func toA2AFilePart(v *genai.Part) (a2a.FilePart, error) {
 	}
 
 	if v.VideoMetadata != nil {
-		data, err := toMapStructure(v.VideoMetadata)
+		data, err := utils.ToMapStructure(v.VideoMetadata)
 		if err != nil {
 			return a2a.FilePart{}, err
 		}
@@ -102,7 +103,7 @@ func toA2AFilePart(v *genai.Part) (a2a.FilePart, error) {
 
 func toA2ADataPart(part *genai.Part, longRunningToolIDs []string) (a2a.DataPart, error) {
 	if part.CodeExecutionResult != nil {
-		data, err := toMapStructure(part.CodeExecutionResult)
+		data, err := utils.ToMapStructure(part.CodeExecutionResult)
 		if err != nil {
 			return a2a.DataPart{}, err
 		}
@@ -113,7 +114,7 @@ func toA2ADataPart(part *genai.Part, longRunningToolIDs []string) (a2a.DataPart,
 	}
 
 	if part.FunctionResponse != nil {
-		data, err := toMapStructure(part.FunctionResponse)
+		data, err := utils.ToMapStructure(part.FunctionResponse)
 		if err != nil {
 			return a2a.DataPart{}, err
 		}
@@ -124,7 +125,7 @@ func toA2ADataPart(part *genai.Part, longRunningToolIDs []string) (a2a.DataPart,
 	}
 
 	if part.ExecutableCode != nil {
-		data, err := toMapStructure(part.ExecutableCode)
+		data, err := utils.ToMapStructure(part.ExecutableCode)
 		if err != nil {
 			return a2a.DataPart{}, err
 		}
@@ -135,7 +136,7 @@ func toA2ADataPart(part *genai.Part, longRunningToolIDs []string) (a2a.DataPart,
 	}
 
 	if part.FunctionCall != nil {
-		data, err := toMapStructure(part.FunctionCall)
+		data, err := utils.ToMapStructure(part.FunctionCall)
 		if err != nil {
 			return a2a.DataPart{}, err
 		}
@@ -152,21 +153,21 @@ func toA2ADataPart(part *genai.Part, longRunningToolIDs []string) (a2a.DataPart,
 }
 
 func toGenAIContent(msg *a2a.Message) (*genai.Content, error) {
-	parts, err := toGenAIParts(msg.Parts)
+	parts, err := ToGenAIParts(msg.Parts)
 	if err != nil {
 		return nil, err
 	}
 	return &genai.Content{Role: genai.RoleUser, Parts: parts}, nil
 }
 
-func toGenAIParts(parts []a2a.Part) ([]*genai.Part, error) {
+func ToGenAIParts(parts []a2a.Part) ([]*genai.Part, error) {
 	result := make([]*genai.Part, len(parts))
 	for i, part := range parts {
 		switch v := part.(type) {
 		case a2a.TextPart:
 			r := genai.NewPartFromText(v.Text)
 			if v.Metadata != nil {
-				if thought, ok := v.Metadata[toMetaKey("thought")].(bool); ok {
+				if thought, ok := v.Metadata[ToA2AMetaKey("thought")].(bool); ok {
 					r.Thought = thought
 				}
 			}
