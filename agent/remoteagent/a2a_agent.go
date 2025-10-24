@@ -26,7 +26,7 @@ import (
 	"github.com/a2aproject/a2a-go/a2aclient/agentcard"
 	"google.golang.org/adk/adka2a"
 	"google.golang.org/adk/agent"
-	"google.golang.org/adk/internal/utils"
+	"google.golang.org/adk/internal/converters"
 	"google.golang.org/adk/session"
 )
 
@@ -190,7 +190,7 @@ func updateCustomMetadata(event *session.Event, request *a2a.MessageSendParams, 
 		if v == nil {
 			continue
 		}
-		payload, err := utils.ToMapStructure(request)
+		payload, err := converters.ToMapStructure(request)
 		if err == nil {
 			event.CustomMetadata[adka2a.ToADKMetaKey(k)] = payload
 		} else {
