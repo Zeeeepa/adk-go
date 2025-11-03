@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package web
+package a2a
 
 import (
 	"iter"
@@ -21,11 +21,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/a2aproject/a2a-go/a2a"
+	a2acore "github.com/a2aproject/a2a-go/a2a"
 	"github.com/a2aproject/a2a-go/a2aclient"
 	"github.com/a2aproject/a2a-go/a2aclient/agentcard"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/cmd/launcher/adk"
+	"google.golang.org/adk/cmd/launcher/web"
 	"google.golang.org/adk/cmd/restapi/services"
 	"google.golang.org/adk/session"
 	"google.golang.org/genai"
@@ -59,9 +60,13 @@ func TestWebLauncher_ServesA2A(t *testing.T) {
 
 	port := getFreePort(t)
 
-	launcher, _, err := BuildLauncher([]string{"--serve_a2a", "--port", strconv.Itoa(port)})
+	launcher := web.NewLauncher(NewLauncher())
+	_, err := launcher.Parse([]string{
+		"--port", strconv.Itoa(port),
+		"a2a", "--a2a_agent_url", "localhost:" + strconv.Itoa(port),
+	})
 	if err != nil {
-		t.Fatalf("BuildLauncher() error = %v", err)
+		t.Fatalf("web.NewLauncher() error = %v", err)
 	}
 
 	wantMessage := "Hello, world!"
@@ -89,10 +94,10 @@ func TestWebLauncher_ServesA2A(t *testing.T) {
 		}
 	}()
 
-	var card *a2a.AgentCard
+	var card *a2acore.AgentCard
 	for retry := range 3 {
 		time.Sleep(20 * time.Millisecond)
-		cardResolver := agentcard.Resolver{BaseURL: "http://127.0.0.1:" + strconv.Itoa(port)}
+		cardResolver := agentcard.Resolver{BaseURL: "http://localhost:" + strconv.Itoa(port)}
 		card, err = cardResolver.Resolve(ctx)
 		if err == nil {
 			break
@@ -110,13 +115,13 @@ func TestWebLauncher_ServesA2A(t *testing.T) {
 		t.Fatalf("a2aclient.NewFromCard() error = %v", err)
 	}
 
-	got, err := client.SendMessage(ctx, &a2a.MessageSendParams{
-		Message: a2a.NewMessage(a2a.MessageRoleUser, a2a.TextPart{Text: "Hi!"}),
+	got, err := client.SendMessage(ctx, &a2acore.MessageSendParams{
+		Message: a2acore.NewMessage(a2acore.MessageRoleUser, a2acore.TextPart{Text: "Hi!"}),
 	})
 	if err != nil {
 		t.Fatalf("client.SendMessage() error = %v", err)
 	}
-	task, ok := got.(*a2a.Task)
+	task, ok := got.(*a2acore.Task)
 	if !ok {
 		t.Fatalf("client.SendMessage() result type = %T, want a2a.Task", got)
 	}
@@ -127,7 +132,7 @@ func TestWebLauncher_ServesA2A(t *testing.T) {
 	if len(parts) != 1 {
 		t.Fatalf("len(task.Artifacts[0].Parts) = %d, want 1", len(parts))
 	}
-	if gotPart, ok := parts[0].(a2a.TextPart); !ok || gotPart.Text != wantMessage {
-		t.Fatalf("task.Artifacts[0].Parts[0] = %v, want %v", parts[0], a2a.TextPart{Text: wantMessage})
+	if gotPart, ok := parts[0].(a2acore.TextPart); !ok || gotPart.Text != wantMessage {
+		t.Fatalf("task.Artifacts[0].Parts[0] = %v, want %v", parts[0], a2acore.TextPart{Text: wantMessage})
 	}
 }
