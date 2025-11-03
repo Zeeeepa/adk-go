@@ -40,7 +40,7 @@ type a2aConfig struct {
 	agentURL string
 }
 
-type A2ALauncher struct {
+type a2aLauncher struct {
 	flags  *flag.FlagSet
 	config *a2aConfig
 }
@@ -53,21 +53,21 @@ func NewLauncher() web.WebSublauncher {
 
 	fs.StringVar(&config.agentURL, "a2a_agent_url", "localhost:8080", "A2A gRPC host URL as advertised in the public agent card. It is used by A2A clients as a connection endpoint.")
 
-	return &A2ALauncher{
+	return &a2aLauncher{
 		config: config,
 		flags:  fs,
 	}
 }
 
-func (a *A2ALauncher) CommandLineSyntax() string {
+func (a *a2aLauncher) CommandLineSyntax() string {
 	return util.FormatFlagUsage(a.flags)
 }
 
-func (a *A2ALauncher) Keyword() string {
+func (a *a2aLauncher) Keyword() string {
 	return "a2a"
 }
 
-func (a *A2ALauncher) Parse(args []string) ([]string, error) {
+func (a *a2aLauncher) Parse(args []string) ([]string, error) {
 	err := a.flags.Parse(args)
 	if err != nil || !a.flags.Parsed() {
 		return nil, fmt.Errorf("failed to parse a2a flags: %v", err)
@@ -78,7 +78,7 @@ func (a *A2ALauncher) Parse(args []string) ([]string, error) {
 
 // WrapHandlers implements web.WebSublauncher. Returns http handler which basing on content-type
 // chooses between a2a grpc handler and provided handler
-func (a *A2ALauncher) WrapHandlers(handler http.Handler, adkConfig *adk.Config) http.Handler {
+func (a *a2aLauncher) WrapHandlers(handler http.Handler, adkConfig *adk.Config) http.Handler {
 	grpcSrv := grpc.NewServer()
 	newA2AHandler(adkConfig).RegisterWith(grpcSrv)
 	reflection.Register(grpcSrv)
@@ -95,7 +95,7 @@ func (a *A2ALauncher) WrapHandlers(handler http.Handler, adkConfig *adk.Config) 
 }
 
 // SimpleDescription implements web.WebSublauncher. For A2A no subrouter definition is needed
-func (a *A2ALauncher) SetupSubrouters(router *mux.Router, adkConfig *adk.Config) {
+func (a *a2aLauncher) SetupSubrouters(router *mux.Router, adkConfig *adk.Config) {
 	rootAgent := adkConfig.AgentLoader.RootAgent()
 	agentCard := &a2acore.AgentCard{
 		Name:               rootAgent.Name(),
@@ -113,12 +113,12 @@ func (a *A2ALauncher) SetupSubrouters(router *mux.Router, adkConfig *adk.Config)
 }
 
 // SimpleDescription implements web.WebSublauncher
-func (a *A2ALauncher) SimpleDescription() string {
+func (a *a2aLauncher) SimpleDescription() string {
 	return "starts A2A server which handles grpc traffic"
 }
 
 // UserMessage implements web.WebSublauncher.
-func (a *A2ALauncher) UserMessage(webUrl string, printer func(v ...any)) {
+func (a *a2aLauncher) UserMessage(webUrl string, printer func(v ...any)) {
 	printer(fmt.Sprintf("       a2a:  you can access A2A using grpc protocol: %s", webUrl))
 }
 

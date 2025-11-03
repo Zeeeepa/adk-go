@@ -25,16 +25,23 @@ type Map map[string]agent.Agent
 
 // New creates parent map allowing to fetch agent's parent.
 // It ensures that agent can have at most one parent.
+// It ensures that the root node name is not referenced again in the agent tree
 func New(root agent.Agent) (Map, error) {
 	res := make(map[string]agent.Agent)
+	rootName := root.Name()
+	pointerMap := map[agent.Agent]string{root: "is root agent"}
 
 	var f func(cur agent.Agent) error
 	f = func(cur agent.Agent) error {
 		for _, subAgent := range cur.SubAgents() {
-			if p, ok := res[subAgent.Name()]; ok {
-				return fmt.Errorf("%q agent cannot have >1 parents, found: %q, %q", subAgent.Name(), p.Name(), cur.Name())
+			if p, ok := pointerMap[subAgent]; ok {
+				return fmt.Errorf("%q agent cannot have >1 parents, found: %q, %q", subAgent.Name(), p, cur.Name())
+			}
+			if _, ok := res[subAgent.Name()]; ok || subAgent.Name() == rootName {
+				return fmt.Errorf("agent names must be unique in the agent tree, found duplicate: %q", subAgent.Name())
 			}
 			res[subAgent.Name()] = cur
+			pointerMap[subAgent] = cur.Name()
 
 			if err := f(subAgent); err != nil {
 				return err
