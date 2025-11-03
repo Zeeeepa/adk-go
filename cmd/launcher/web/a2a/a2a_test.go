@@ -96,7 +96,7 @@ func TestWebLauncher_ServesA2A(t *testing.T) {
 
 	var card *a2acore.AgentCard
 	for retry := range 3 {
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond) // give server time to start
 		cardResolver := agentcard.Resolver{BaseURL: "http://localhost:" + strconv.Itoa(port)}
 		card, err = cardResolver.Resolve(ctx)
 		if err == nil {
