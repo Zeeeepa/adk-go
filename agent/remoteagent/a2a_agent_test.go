@@ -415,7 +415,7 @@ func TestRemoteAgent_ADK2A2A(t *testing.T) {
 				newFinalStatusUpdate(task, a2a.TaskStateCompleted, a2a.TextPart{Text: "completed!"}),
 			},
 			wantResponses: []model.LLMResponse{
-				{Content: &genai.Content{Parts: []*genai.Part{{Text: "submitted...", Thought: true},}, Role: genai.RoleModel}, Partial: true},
+				{Content: &genai.Content{Parts: []*genai.Part{{Text: "submitted...", Thought: true}}, Role: genai.RoleModel}, Partial: true},
 				{Content: &genai.Content{Parts: []*genai.Part{{Text: "working...", Thought: true}}, Role: genai.RoleModel}, Partial: true},
 				{Content: genai.NewContentFromText("completed!", genai.RoleModel), TurnComplete: true},
 			},
