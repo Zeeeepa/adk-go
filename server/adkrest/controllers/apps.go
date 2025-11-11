@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package errors
+package controllers
 
-type StatusError struct {
-	Err  error
-	Code int
+import (
+	"net/http"
+
+	"google.golang.org/adk/server/adkrest/services"
+)
+
+// AppsAPIController is the controller for the Apps API.
+type AppsAPIController struct {
+	agentLoader services.AgentLoader
 }
 
-func NewStatusError(err error, code int) StatusError {
-	return StatusError{Err: err, Code: code}
+func NewAppsAPIController(agentLoader services.AgentLoader) *AppsAPIController {
+	return &AppsAPIController{agentLoader: agentLoader}
 }
 
-// Error returns an associated error
-func (se StatusError) Error() string {
-	return se.Err.Error()
-}
-
-// Status returns an associated status code
-func (se StatusError) Status() int {
-	return se.Code
+// ListAppsHandler handles listing all loaded agents.
+func (c *AppsAPIController) ListAppsHandler(rw http.ResponseWriter, req *http.Request) {
+	apps := c.agentLoader.ListAgents()
+	EncodeJSONResponse(apps, http.StatusOK, rw)
 }

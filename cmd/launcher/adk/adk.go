@@ -19,7 +19,7 @@ import (
 	"github.com/a2aproject/a2a-go/a2asrv"
 	"google.golang.org/adk/artifact"
 	"google.golang.org/adk/memory"
-	"google.golang.org/adk/server/restapi/services"
+	"google.golang.org/adk/server/adkrest/services"
 	"google.golang.org/adk/session"
 )
 

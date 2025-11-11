@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package handlers contains the controllers for the ADK-Web REST API.
-package handlers
+// Package controllers contains the controllers for the ADK-Web REST API.
+package controllers
 
 import (
 	"encoding/json"
 	"net/http"
-
-	"google.golang.org/adk/server/restapi/errors"
 )
 
 // EncodeJSONResponse uses the json encoder to write an interface to the http response with an optional status code
@@ -39,12 +37,12 @@ func EncodeJSONResponse(i any, status int, w http.ResponseWriter) {
 
 type errorHandler func(http.ResponseWriter, *http.Request) error
 
-// FromErrorHandler writes the error code returned from the http handler.
-func FromErrorHandler(fn errorHandler) http.HandlerFunc {
+// NewErrorHandler writes the error code returned from the http handler.
+func NewErrorHandler(fn errorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := fn(w, r)
 		if err != nil {
-			if statusErr, ok := err.(errors.StatusError); ok {
+			if statusErr, ok := err.(statusError); ok {
 				http.Error(w, statusErr.Error(), statusErr.Status())
 			} else {
 				http.Error(w, err.Error(), http.StatusInternalServerError)

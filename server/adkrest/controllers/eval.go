@@ -12,25 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handlers
-
-import (
-	"net/http"
-
-	"google.golang.org/adk/server/restapi/services"
-)
-
-// AppsAPIController is the controller for the Apps API.
-type AppsAPIController struct {
-	agentLoader services.AgentLoader
-}
-
-func NewAppsAPIController(agentLoader services.AgentLoader) *AppsAPIController {
-	return &AppsAPIController{agentLoader: agentLoader}
-}
-
-// ListApps handles listing all loaded agents.
-func (c *AppsAPIController) ListApps(rw http.ResponseWriter, req *http.Request) {
-	apps := c.agentLoader.ListAgents()
-	EncodeJSONResponse(apps, http.StatusOK, rw)
-}
+package controllers

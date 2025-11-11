@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handlers
+package controllers
 
 import (
 	"context"
@@ -20,7 +20,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"google.golang.org/adk/server/restapi/models"
+	"google.golang.org/adk/server/adkrest/internal/models"
 	"google.golang.org/adk/session"
 )
 
@@ -37,7 +37,7 @@ func NewSessionsAPIController(service session.Service) *SessionsAPIController {
 }
 
 // CreateSesssionHTTP is a HTTP handler for the create session API.
-func (c *SessionsAPIController) CreateSessionHTTP(rw http.ResponseWriter, req *http.Request) {
+func (c *SessionsAPIController) CreateSessionHandler(rw http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(params)
 	if err != nil {
@@ -81,7 +81,7 @@ func (c *SessionsAPIController) createSession(ctx context.Context, sessionID mod
 }
 
 // DeleteSession handles deleting a specific session.
-func (c *SessionsAPIController) DeleteSessionHTTP(rw http.ResponseWriter, req *http.Request) {
+func (c *SessionsAPIController) DeleteSessionHandler(rw http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(params)
 	if err != nil {
@@ -106,7 +106,7 @@ func (c *SessionsAPIController) DeleteSessionHTTP(rw http.ResponseWriter, req *h
 }
 
 // GetSession retrieves a specific session by its ID.
-func (c *SessionsAPIController) GetSessionHTTP(rw http.ResponseWriter, req *http.Request) {
+func (c *SessionsAPIController) GetSessionHandler(rw http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(params)
 	if err != nil {
@@ -135,7 +135,7 @@ func (c *SessionsAPIController) GetSessionHTTP(rw http.ResponseWriter, req *http
 }
 
 // ListSessions handles listing all sessions for a given app and user.
-func (c *SessionsAPIController) ListSessionsHTTP(rw http.ResponseWriter, req *http.Request) {
+func (c *SessionsAPIController) ListSessionsHandler(rw http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(params)
 	if err != nil {

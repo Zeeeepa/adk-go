@@ -28,7 +28,7 @@ import (
 	"google.golang.org/adk/examples/web/agents"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/model/gemini"
-	"google.golang.org/adk/server/restapi/services"
+	"google.golang.org/adk/server/adkrest/services"
 	"google.golang.org/adk/session"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/geminitool"

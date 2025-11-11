@@ -19,9 +19,9 @@ import (
 	"github.com/gorilla/mux"
 	"google.golang.org/adk/cmd/launcher/adk"
 	"google.golang.org/adk/internal/telemetry"
-	"google.golang.org/adk/server/restapi/handlers"
-	"google.golang.org/adk/server/restapi/routers"
-	"google.golang.org/adk/server/restapi/services"
+	"google.golang.org/adk/server/adkrest/controllers"
+	"google.golang.org/adk/server/adkrest/internal/routers"
+	"google.golang.org/adk/server/adkrest/services"
 
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
@@ -30,12 +30,15 @@ import (
 func SetupRouter(router *mux.Router, routerConfig *adk.Config) *mux.Router {
 	adkExporter := services.NewAPIServerSpanExporter()
 	telemetry.AddSpanProcessor(sdktrace.NewSimpleSpanProcessor(adkExporter))
+
+	// TODO: Allow taking a prefix to allow customizing the path
+	// where the ADK REST API will be served.
 	return setupRouter(router,
-		routers.NewSessionsAPIRouter(handlers.NewSessionsAPIController(routerConfig.SessionService)),
-		routers.NewRuntimeAPIRouter(handlers.NewRuntimeAPIRouter(routerConfig.SessionService, routerConfig.AgentLoader, routerConfig.ArtifactService)),
-		routers.NewAppsAPIRouter(handlers.NewAppsAPIController(routerConfig.AgentLoader)),
-		routers.NewDebugAPIRouter(handlers.NewDebugAPIController(routerConfig.SessionService, routerConfig.AgentLoader, adkExporter)),
-		routers.NewArtifactsAPIRouter(handlers.NewArtifactsAPIController(routerConfig.ArtifactService)),
+		routers.NewSessionsAPIRouter(controllers.NewSessionsAPIController(routerConfig.SessionService)),
+		routers.NewRuntimeAPIRouter(controllers.NewRuntimeAPIRouter(routerConfig.SessionService, routerConfig.AgentLoader, routerConfig.ArtifactService)),
+		routers.NewAppsAPIRouter(controllers.NewAppsAPIController(routerConfig.AgentLoader)),
+		routers.NewDebugAPIRouter(controllers.NewDebugAPIController(routerConfig.SessionService, routerConfig.AgentLoader, adkExporter)),
+		routers.NewArtifactsAPIRouter(controllers.NewArtifactsAPIController(routerConfig.ArtifactService)),
 		&routers.EvalAPIRouter{},
 	)
 }

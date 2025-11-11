@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handlers
+package controllers
 
 import (
 	"net/http"
@@ -20,7 +20,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"google.golang.org/adk/artifact"
-	"google.golang.org/adk/server/restapi/models"
+	"google.golang.org/adk/server/adkrest/internal/models"
 )
 
 // ArtifactsAPIController is the controller for the Artifacts API.
@@ -32,8 +32,8 @@ func NewArtifactsAPIController(artifactService artifact.Service) *ArtifactsAPICo
 	return &ArtifactsAPIController{artifactService: artifactService}
 }
 
-// ListArtifacts lists all the artifact filenames within a session.
-func (c *ArtifactsAPIController) ListArtifacts(rw http.ResponseWriter, req *http.Request) {
+// ListArtifactsHandler lists all the artifact filenames within a session.
+func (c *ArtifactsAPIController) ListArtifactsHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(vars)
 	if err != nil {
@@ -60,8 +60,8 @@ func (c *ArtifactsAPIController) ListArtifacts(rw http.ResponseWriter, req *http
 	EncodeJSONResponse(files, http.StatusOK, rw)
 }
 
-// LoadArtifact gets an artifact from the artifact service storage.
-func (c *ArtifactsAPIController) LoadArtifact(rw http.ResponseWriter, req *http.Request) {
+// LoadArtifactHandler gets an artifact from the artifact service storage.
+func (c *ArtifactsAPIController) LoadArtifactHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(vars)
 	if err != nil {
@@ -103,8 +103,8 @@ func (c *ArtifactsAPIController) LoadArtifact(rw http.ResponseWriter, req *http.
 	EncodeJSONResponse(resp.Part, http.StatusOK, rw)
 }
 
-// LoadArtifactVersion gets an artifact from the artifact service storage with specified version.
-func (c *ArtifactsAPIController) LoadArtifactVersion(rw http.ResponseWriter, req *http.Request) {
+// LoadArtifactVersionHandler gets an artifact from the artifact service storage with specified version.
+func (c *ArtifactsAPIController) LoadArtifactVersionHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(vars)
 	if err != nil {
@@ -149,8 +149,8 @@ func (c *ArtifactsAPIController) LoadArtifactVersion(rw http.ResponseWriter, req
 	EncodeJSONResponse(resp.Part, http.StatusOK, rw)
 }
 
-// DeleteArtifact handles deleting an artifact.
-func (c *ArtifactsAPIController) DeleteArtifact(rw http.ResponseWriter, req *http.Request) {
+// DeleteArtifactHandler handles deleting an artifact.
+func (c *ArtifactsAPIController) DeleteArtifactHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(vars)
 	if err != nil {

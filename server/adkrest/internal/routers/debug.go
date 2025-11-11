@@ -17,16 +17,16 @@ package routers
 import (
 	"net/http"
 
-	"google.golang.org/adk/server/restapi/handlers"
+	"google.golang.org/adk/server/adkrest/controllers"
 )
 
 // DebugAPIRouter defines the routes for the Debug API.
 type DebugAPIRouter struct {
-	runtimeController *handlers.DebugAPIController
+	runtimeController *controllers.DebugAPIController
 }
 
 // NewDebugAPIRouter creates a new DebugAPIRouter.
-func NewDebugAPIRouter(controller *handlers.DebugAPIController) *DebugAPIRouter {
+func NewDebugAPIRouter(controller *controllers.DebugAPIController) *DebugAPIRouter {
 	return &DebugAPIRouter{runtimeController: controller}
 
 }
@@ -38,19 +38,19 @@ func (r *DebugAPIRouter) Routes() Routes {
 			Name:        "GetTraceDict",
 			Methods:     []string{http.MethodGet},
 			Pattern:     "/debug/trace/{event_id}",
-			HandlerFunc: r.runtimeController.TraceDict,
+			HandlerFunc: r.runtimeController.TraceDictHandler,
 		},
 		Route{
 			Name:        "GetEventGraph",
 			Methods:     []string{http.MethodGet},
 			Pattern:     "/apps/{app_name}/users/{user_id}/sessions/{session_id}/events/{event_id}/graph",
-			HandlerFunc: r.runtimeController.EventGraph,
+			HandlerFunc: r.runtimeController.EventGraphHandler,
 		},
 		Route{
 			Name:        "GetSessionTrace",
 			Methods:     []string{http.MethodGet},
 			Pattern:     "/debug/trace/session/{session_id}",
-			HandlerFunc: handlers.Unimplemented,
+			HandlerFunc: controllers.Unimplemented,
 		},
 	}
 }

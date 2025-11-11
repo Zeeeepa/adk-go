@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handlers
+package controllers
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"google.golang.org/adk/server/restapi/models"
-	"google.golang.org/adk/server/restapi/services"
+	"google.golang.org/adk/server/adkrest/internal/models"
+	"google.golang.org/adk/server/adkrest/services"
 	"google.golang.org/adk/session"
 	"google.golang.org/genai"
 )
@@ -40,8 +40,8 @@ func NewDebugAPIController(sessionService session.Service, agentLoader services.
 	}
 }
 
-// TraceDict returns the debug information for the session in form of dictionary.
-func (c *DebugAPIController) TraceDict(rw http.ResponseWriter, req *http.Request) {
+// TraceDictHandler returns the debug information for the session in form of dictionary.
+func (c *DebugAPIController) TraceDictHandler(rw http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	eventID := params["event_id"]
 	if eventID == "" {
@@ -57,8 +57,8 @@ func (c *DebugAPIController) TraceDict(rw http.ResponseWriter, req *http.Request
 	EncodeJSONResponse(eventDict, http.StatusOK, rw)
 }
 
-// EventGraph returns the debug information for the session and session events in form of graph.
-func (c *DebugAPIController) EventGraph(rw http.ResponseWriter, req *http.Request) {
+// EventGraphHandler returns the debug information for the session and session events in form of graph.
+func (c *DebugAPIController) EventGraphHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	sessionID, err := models.SessionIDFromHTTPParameters(vars)
 	if err != nil {

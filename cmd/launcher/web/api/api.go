@@ -24,7 +24,7 @@ import (
 	"google.golang.org/adk/cmd/launcher/adk"
 	weblauncher "google.golang.org/adk/cmd/launcher/web"
 	"google.golang.org/adk/internal/cli/util"
-	restapiweb "google.golang.org/adk/server/restapi/web"
+	restapiweb "google.golang.org/adk/server/adkrest/web"
 )
 
 // apiConfig contains parametres for lauching ADK REST API

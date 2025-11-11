@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handlers_test
+package controllers_test
 
 import (
 	"bytes"
@@ -27,9 +27,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/gorilla/mux"
-	"google.golang.org/adk/server/restapi/fakes"
-	"google.golang.org/adk/server/restapi/handlers"
-	"google.golang.org/adk/server/restapi/models"
+	"google.golang.org/adk/server/adkrest/controllers"
+	"google.golang.org/adk/server/adkrest/internal/fakes"
+	"google.golang.org/adk/server/adkrest/internal/models"
 )
 
 func TestGetSession(t *testing.T) {
@@ -116,7 +116,7 @@ func TestGetSession(t *testing.T) {
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
 			sessionService := fakes.FakeSessionService{Sessions: tt.storedSessions}
-			apiController := handlers.NewSessionsAPIController(&sessionService)
+			apiController := controllers.NewSessionsAPIController(&sessionService)
 			req, err := http.NewRequest(http.MethodGet, "/apps/testApp/users/testUser/sessions/testSession", nil)
 			if err != nil {
 				t.Fatalf("new request: %v", err)
@@ -125,7 +125,7 @@ func TestGetSession(t *testing.T) {
 			req = mux.SetURLVars(req, sessionVars(tt.sessionID))
 			rr := httptest.NewRecorder()
 
-			apiController.GetSessionHTTP(rr, req)
+			apiController.GetSessionHandler(rr, req)
 
 			if status := rr.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -229,7 +229,7 @@ func TestCreateSession(t *testing.T) {
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
 			sessionService := fakes.FakeSessionService{Sessions: tt.storedSessions}
-			apiController := handlers.NewSessionsAPIController(&sessionService)
+			apiController := controllers.NewSessionsAPIController(&sessionService)
 			reqBytes, err := json.Marshal(tt.createRequestObj)
 			if err != nil {
 				t.Fatalf("marshal request: %v", err)
@@ -242,7 +242,7 @@ func TestCreateSession(t *testing.T) {
 			req = mux.SetURLVars(req, sessionVars(tt.sessionID))
 			rr := httptest.NewRecorder()
 
-			apiController.CreateSessionHTTP(rr, req)
+			apiController.CreateSessionHandler(rr, req)
 
 			if status := rr.Code; status != tt.wantStatus {
 				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -303,7 +303,7 @@ func TestDeleteSession(t *testing.T) {
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
 			sessionService := fakes.FakeSessionService{Sessions: tt.storedSessions}
-			apiController := handlers.NewSessionsAPIController(&sessionService)
+			apiController := controllers.NewSessionsAPIController(&sessionService)
 			req, err := http.NewRequest(http.MethodDelete, "/apps/testApp/users/testUser/sessions/testSession", nil)
 			if err != nil {
 				t.Fatalf("new request: %v", err)
@@ -312,7 +312,7 @@ func TestDeleteSession(t *testing.T) {
 			req = mux.SetURLVars(req, sessionVars(tt.sessionID))
 			rr := httptest.NewRecorder()
 
-			apiController.DeleteSessionHTTP(rr, req)
+			apiController.DeleteSessionHandler(rr, req)
 			if status := rr.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
 			}
@@ -405,7 +405,7 @@ func TestListSessions(t *testing.T) {
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
 			sessionService := fakes.FakeSessionService{Sessions: tt.storedSessions}
-			apiController := handlers.NewSessionsAPIController(&sessionService)
+			apiController := controllers.NewSessionsAPIController(&sessionService)
 			req, err := http.NewRequest(http.MethodDelete, "/apps/testApp/users/testUser/sessions/testSession", nil)
 			if err != nil {
 				t.Fatalf("new request: %v", err)
@@ -417,7 +417,7 @@ func TestListSessions(t *testing.T) {
 			})
 			rr := httptest.NewRecorder()
 
-			apiController.ListSessionsHTTP(rr, req)
+			apiController.ListSessionsHandler(rr, req)
 			if status := rr.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
 			}

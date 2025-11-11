@@ -17,16 +17,16 @@ package routers
 import (
 	"net/http"
 
-	"google.golang.org/adk/server/restapi/handlers"
+	"google.golang.org/adk/server/adkrest/controllers"
 )
 
 // ArtifactsAPIRouter defines the routes for the Artifacts API.
 type ArtifactsAPIRouter struct {
-	artifactsController *handlers.ArtifactsAPIController
+	artifactsController *controllers.ArtifactsAPIController
 }
 
 // NewArtifactsAPIRouter creates a new ArtifactsAPIRouter.
-func NewArtifactsAPIRouter(controller *handlers.ArtifactsAPIController) *ArtifactsAPIRouter {
+func NewArtifactsAPIRouter(controller *controllers.ArtifactsAPIController) *ArtifactsAPIRouter {
 	return &ArtifactsAPIRouter{artifactsController: controller}
 }
 
@@ -37,25 +37,25 @@ func (r *ArtifactsAPIRouter) Routes() Routes {
 			Name:        "ListArtifacts",
 			Methods:     []string{http.MethodGet},
 			Pattern:     "/apps/{app_name}/users/{user_id}/sessions/{session_id}/artifacts",
-			HandlerFunc: r.artifactsController.ListArtifacts,
+			HandlerFunc: r.artifactsController.ListArtifactsHandler,
 		},
 		Route{
 			Name:        "LoadArtifact",
 			Methods:     []string{http.MethodGet},
 			Pattern:     "/apps/{app_name}/users/{user_id}/sessions/{session_id}/artifacts/{artifact_name}",
-			HandlerFunc: r.artifactsController.LoadArtifact,
+			HandlerFunc: r.artifactsController.LoadArtifactHandler,
 		},
 		Route{
 			Name:        "LoadArtifact",
 			Methods:     []string{http.MethodGet},
 			Pattern:     "/apps/{app_name}/users/{user_id}/sessions/{session_id}/artifacts/{artifact_name}/versions/{version}",
-			HandlerFunc: r.artifactsController.LoadArtifactVersion,
+			HandlerFunc: r.artifactsController.LoadArtifactVersionHandler,
 		},
 		Route{
 			Name:        "DeleteArtifact",
 			Methods:     []string{http.MethodDelete, http.MethodOptions},
 			Pattern:     "/apps/{app_name}/users/{user_id}/sessions/{session_id}/artifacts/{artifact_name}",
-			HandlerFunc: r.artifactsController.DeleteArtifact,
+			HandlerFunc: r.artifactsController.DeleteArtifactHandler,
 		},
 	}
 }

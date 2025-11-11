@@ -27,7 +27,7 @@ import (
 	"google.golang.org/adk/cmd/launcher/adk"
 	weblauncher "google.golang.org/adk/cmd/launcher/web"
 	"google.golang.org/adk/internal/cli/util"
-	"google.golang.org/adk/server/restapi/handlers"
+	"google.golang.org/adk/server/adkrest/controllers"
 )
 
 // webUIConfig contains parametres for lauching ADK Web UI
@@ -96,7 +96,7 @@ func (w *webUILauncher) AddSubrouter(router *mux.Router, pathPrefix string, adkC
 		BackendUrl string `json:"backendUrl"`
 	}{BackendUrl: backendAddress}
 	rUI.Methods("GET").Path("/assets/config/runtime-config.json").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handlers.EncodeJSONResponse(runtimeConfigResponse, http.StatusOK, w)
+		controllers.EncodeJSONResponse(runtimeConfigResponse, http.StatusOK, w)
 	})
 
 	//   redirect the user from / to pathPrefix (/ui/)
